@@ -1,8 +1,33 @@
+'''
+This .py file is intended to keep all the functions that we will need during development. A couple of rules to follow:
+
+1. Let's write proper docstrings for each functions following this convention:
+
+    def add_numbers(a: int, b: int) -> int:
+        """
+        Add two numbers together.
+
+        This function takes two integers and returns their sum.
+
+        Parameters:
+        a (int): The first integer to add.
+        b (int): The second integer to add.
+
+        Returns:
+        int: The sum of the two input integers.
+        """
+        
+2. Let's include what the function return. For example, if a function returns a dict, it should be written as: def func() -> dict
+3. Let' use clear and concise function and parameter names
+4. Let's break stuff as quickly as possible so we learn faster
+
+'''
+
 import pandas as pd
 import numpy as np
 
 # ----------------------------------------------------- 1
-def load_data():
+def load_data() -> dict:
     data_files = {
         'olist_customers_df': '/Users/juanherrera/Desktop/causal-attribution-analysis/data/olist_customers_dataset.csv',
         'olist_geolocation_df': '/Users/juanherrera/Desktop/causal-attribution-analysis/data/olist_geolocation_dataset.csv',
@@ -18,6 +43,8 @@ def load_data():
     dataframes = {name: pd.read_csv(path) for name, path in data_files.items()}
 
     return dataframes
+
+# ----------------------------------------------------- 2
 
 
     
