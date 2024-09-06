@@ -1,8 +1,44 @@
-# E-commerce Causal Inference Project
+# Olist E-commerce Causal Analysis
 
-This project conducts causal inference analysis on e-commerce data to investigate various factors affecting customer behavior and business outcomes.
+## Project Overview
 
-## Setup Instructions
+This project aims to investigate the causal effect of delayed delivery on customer satisfaction ratings in e-commerce, using data provided by Olist, the largest department store in Brazilian marketplaces.
+
+### About Olist and the Dataset
+
+Olist connects small businesses from all over Brazil to various channels through a single contract. Merchants can sell their products via the Olist Store and ship them directly to customers using Olist's logistics partners. The dataset captures the customer journey from purchase to delivery and feedback.
+
+### Research Question
+
+Our primary research question is:
+
+**What is the causal effect of delayed delivery on customer satisfaction ratings in e-commerce?**
+
+Following this, we will conduct a root-cause analysis to understand the factors contributing to delivery delays.
+
+## Methodology
+
+Our analysis will follow these key steps:
+
+1. **Model Formulation**: Develop a causal inference model based on carefully considered assumptions.
+2. **Causal Estimand Identification**: Determine an expression for the causal effect under our model assumptions.
+3. **Statistical Estimation**: Apply advanced statistical methods such as matching or instrumental variables to estimate the causal effect.
+4. **Robustness Checks**: Verify the validity of our estimates through various robustness checks.
+
+## Expected Outcomes
+
+This project aims to provide valuable insights into:
+- The quantitative impact of delivery delays on customer satisfaction
+- Key factors contributing to delivery delays in e-commerce
+- Potential strategies for improving customer satisfaction in online retail
+
+By leveraging causal inference techniques, we hope to move beyond mere correlation and uncover actionable insights for e-commerce businesses.
+
+## Tools and Technologies
+
+Python, DoWhy
+
+## Getting Started
 
 ### Prerequisites
 
@@ -64,3 +100,12 @@ When you're done working on the project, you can deactivate the virtual environm
 ```
 deactivate
 ```
+
+## Contributors
+
+## Contributors
+
+- **[Juan Herrera](https://www.linkedin.com/in/juanherreras/)** 
+- **[Denisse Wohlstein](https://www.linkedin.com/in/denissewohlstein/)** 
+- **[Matteo Mennini](https://www.linkedin.com/in/matteomennini/)** 
+- **[Anna Natasha](https://www.linkedin.com/in/anna-natasha/)** 
