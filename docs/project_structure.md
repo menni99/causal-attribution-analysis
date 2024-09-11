@@ -6,14 +6,12 @@ project-name/
 ├── data/
 │   ├── raw/
 │   ├── processed/
-│   └── external/
+│   
 │
 ├── src/
 │   ├── data/
 │   │   ├── make_dataset.py
 │   │   └── preprocess.py
-│   ├── features/
-│   │   └── build_features.py
 │   ├── models/
 │   │   ├── estimate_effects.py
 │   │   └── validate_assumptions.py
@@ -21,10 +19,9 @@ project-name/
 │       └── visualize.py
 │
 ├── notebooks/
-│   ├── 1.0-data-exploration.ipynb
-│   ├── 2.0-preprocessing.ipynb
-│   ├── 3.0-model-development.ipynb
-│   └── 4.0-results-analysis.ipynb
+│   ├── 1.data-exploration.ipynb
+│   ├── 2.model-development.ipynb
+│   └── 3.results-analysis.ipynb
 │
 ├── results/
 │   ├── figures/
@@ -34,6 +31,7 @@ project-name/
 │   ├── data_dictionary.md
 │   ├── analysis_plan.md
 │   └── final_report.md
+|   └── CONTRIBUTING.md
 │
 ├── tests/
 │
@@ -49,11 +47,9 @@ project-name/
 - `data/`: Store all data files
   - `raw/`: Original, immutable data
   - `processed/`: Cleaned and processed data
-  - `external/`: Data from external sources
 
 - `src/`: Source code for use in this project
   - `data/`: Scripts to download or generate data
-  - `features/`: Scripts to turn raw data into features for modeling
   - `models/`: Scripts to train models and make predictions
   - `visualization/`: Scripts to create exploratory and results visualizations
 
@@ -74,4 +70,4 @@ project-name/
 - `requirements.txt`: The requirements file for reproducing the analysis environment
 - `README.md`: The top-level description of your project
 - `.gitignore`: Specifies intentionally untracked files to ignore
-- `LICENSE`: The license for your project
+
