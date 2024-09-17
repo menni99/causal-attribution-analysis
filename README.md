@@ -70,7 +70,7 @@ Python, DoWhy
      ```
    - On macOS and Linux:
      ```
-     python3 -m venv venv
+     python3 
      ```
 
 2. Activate the virtual environment:
