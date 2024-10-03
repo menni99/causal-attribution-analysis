@@ -43,10 +43,11 @@ def preprocessing(df, state_to_region):
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['seasonality'] = df['order_purchase_timestamp'].dt.month
 
-    df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 'review_answer_timestamp',
-       'order_item_id', 'product_id', 'seller_id','payment_value', 'review_id', 'review_score',
-       'month', 'rainfall', 'Product_weight_kg', 'Product_category', 'Product_size',  'No_photos',
-       'Product_price',  'seasonality', 'is_delivery_late', 'geolocation_lat_x', 'geolocation_lng_x', 'geolocation_lat_y', 'geolocation_lng_y']]
+    df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 
+                   'review_answer_timestamp', 'order_item_id', 'product_id', 'seller_id','payment_value', 
+                   'review_id', 'review_score', 'month', 'rainfall', 'Product_weight_kg', 'Product_category', 
+                   'Product_size',  'No_photos', 'Product_price',  'seasonality', 'is_delivery_late', 'geolocation_lat_x', 
+                   'geolocation_lng_x', 'geolocation_lat_y', 'geolocation_lng_y', 'freight_value']]
     
     
     return df_final
@@ -71,3 +72,6 @@ def haversine(lat1, lon1, lat2, lon2):
     distance = r * c
 
     return distance
+
+
+# ------------------ dealing missing values

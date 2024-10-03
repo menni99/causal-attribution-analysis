@@ -67,8 +67,6 @@ def merge_all_datasets(olist_customers_df: pd.DataFrame,
                        olist_orders_df: pd.DataFrame,
                        olist_products_df: pd.DataFrame, 
                        olist_sellers_df: pd.DataFrame, 
-                       # olist_closed_deals_df: pd.DataFrame, 
-                       # olist_marketing_qualified_leads_df: pd.DataFrame
                        ) -> pd.DataFrame:
     '''
     Takes all the data as pandas dataframes, merges them into one final dataframe, and returns it
