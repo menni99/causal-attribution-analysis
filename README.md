@@ -66,7 +66,7 @@ Python, DoWhy
 1. Create a virtual environment:
    - On Windows:
      ```
-     python -m venv venv
+     py -3.9 -m venv venv
      ```
    - On macOS and Linux:
      ```
@@ -108,4 +108,5 @@ deactivate
 - **[Juan Herrera](https://www.linkedin.com/in/juanherreras/)** 
 - **[Denisse Wohlstein](https://www.linkedin.com/in/denissewohlstein/)** 
 - **[Matteo Mennini](https://www.linkedin.com/in/matteomennini/)** 
-- **[Anna Natasha](https://www.linkedin.com/in/anna-natasha/)** 
+- **[Anna Natasha](https://www.linkedin.com/in/anna-natasha/)**
+- **[Avantika Gargya](https://www.linkedin.com/in/avantika-gargya/)**
