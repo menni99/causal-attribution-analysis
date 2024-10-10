@@ -25,8 +25,14 @@ def haversine(lat1, lon1, lat2, lon2):
     return distance
 
 
-def preprocessing(df, state_to_region):
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
 
+def rolling_mean_excluding_last(group):
+    return group['review_score'].shift(1).expanding().mean()
+
+def preprocessing(df, state_to_region):
     # Convert 'order_approved_at' column to datetime if it's not already
     df['order_approved_at'] = pd.to_datetime(df['order_approved_at'])
 
@@ -36,51 +42,78 @@ def preprocessing(df, state_to_region):
     # Map state to region
     df['rainfall'] = df['customer_state'].map(state_to_region)  
 
-    # weight
-    df['Product_weight_kg'] = df['product_weight_g']/1000
+    # Weight
+    df['Product_weight_kg'] = df['product_weight_g'] / 1000
 
-    # product category
+    # Product category
     df['Product_category'] = df['product_category_name']
-    le  = LabelEncoder()
+    le = LabelEncoder()
     df['Product_category_encoded'] = le.fit_transform(df['Product_category']) 
 
-    # product size
+    # Product size
     df['Product_size'] = df['product_length_cm'] * df['product_height_cm'] * df['product_width_cm']
 
-    # 
+    # Number of photos
     df['No_photos'] = df['product_photos_qty']
 
-    #
+    # Product price
     df['Product_price'] = df['price']
 
-    #
+    # Date conversions
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'])
     df['order_estimated_delivery_date'] = pd.to_datetime(df['order_estimated_delivery_date'])
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
 
     df['late_delivery_in_days'] = (df['order_delivered_customer_date'] - df['order_estimated_delivery_date']).dt.days
-
     df['is_delivery_late'] = np.where(df['late_delivery_in_days'] > 0, 1, 0)
 
-    df['Rating']= df['review_score']
+    # Rating
+    df['Rating'] = df['review_score']
 
-    # 
-    df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
+    # Seasonality
     df['seasonality'] = df['order_purchase_timestamp'].dt.month
 
-
-    # distance_km
+    # Calculate distance_km
     df['distance_km'] = df.apply(lambda row: haversine(row['geolocation_lat_x'], row['geolocation_lng_x'],
                                                       row['geolocation_lat_y'], row['geolocation_lng_y']), axis=1)
 
-    df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 
-                   'review_answer_timestamp', 'order_item_id', 'product_id', 'seller_id','payment_value', 
-                   'review_id', 'review_score', 'month', 'rainfall', 'Product_weight_kg', 'Product_category', 
-                   'Product_size',  'No_photos', 'Product_price',  'seasonality', 'is_delivery_late', 'geolocation_lat_x', 
-                   'geolocation_lng_x', 'geolocation_lat_y', 'geolocation_lng_y', 'freight_value', 'distance_km', 'Product_category_encoded']]
+    # Sort by customer_id for customer_experience calculation
+    df = df.sort_values(by=['customer_id', 'review_answer_timestamp'])
+
+    # Create a new column for the rolling mean of previous product ratings for customer experience
+    df['customer_experience'] = df.groupby('customer_id').apply(rolling_mean_excluding_last).reset_index(drop=True)
+    df['customer_experience'] = df['customer_experience'].fillna(df['review_score'])
+
+    # Sort by seller_id for seller_avg_rating calculation
+    df = df.sort_values(by=['seller_id', 'review_answer_timestamp'])
+
+    # Create a new column for the rolling mean of previous product ratings for seller average rating
+    df['seller_avg_rating'] = df.groupby('seller_id').apply(rolling_mean_excluding_last).reset_index(drop=True)
+    df['seller_avg_rating'] = df['seller_avg_rating'].fillna(df['review_score'])
+
+    # rain_level
+    def get_rainfall_category(row):
+    if pd.isnull(row['seller_state']) or pd.isnull(row['order_purchase_timestamp']):
+        return 'Unknown'
+
+    month = pd.to_datetime(row['order_purchase_timestamp']).month
+    region = state_to_region.get(row['seller_state'])
     
+    if region:
+        return rainfall_categories[region].get(month, 'Unknown')
+    return 'Unknown'
+    df['rain_level'] = df.apply(get_rainfall_category, axis=1)
+
+    # Create final DataFrame with selected columns
+    df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 
+                   'review_answer_timestamp', 'order_item_id', 'product_id', 'seller_id', 'payment_value', 
+                   'review_id', 'review_score', 'month', 'rainfall', 'Product_weight_kg', 'Product_category', 
+                   'Product_size', 'No_photos', 'Product_price', 'seasonality', 'is_delivery_late', 
+                   'geolocation_lat_x', 'geolocation_lng_x', 'geolocation_lat_y', 'geolocation_lng_y', 
+                   'freight_value', 'distance_km', 'Product_category_encoded', 'customer_experience', 'seller_avg_rating']]
     
     return df_final
+
 
 
 # ------------------ dealing missing values

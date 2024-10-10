@@ -1,0 +1,16 @@
+- Include rain_level variable as a function and column in df_final
+- Understand Potential outcomes
+
+
+Problems: 
+- Check duplicates for Order_IDs
+- Do the model development 
+- Why are their no null values?
+- Product_size is in cm or m or what?
+- difference between product_prize and payment_value?
+
+
+FOR MODELING:
+
+How many confounders should we take into account?
+
