@@ -87,16 +87,7 @@ def merge_all_datasets(olist_customers_df: pd.DataFrame,
     df = df.merge(olist_customers_df, on='customer_id', how='outer')
     df = df.merge(olist_sellers_df, on='seller_id', how='outer')
     df = df.merge(olist_geolocation_df_new, left_on='customer_zip_code_prefix', right_on='geolocation_zip_code_prefix',  how='left')
-    #customer defines as X
     df = df.merge(olist_geolocation_df_new, left_on='seller_zip_code_prefix', right_on='geolocation_zip_code_prefix',  how='left')
-    #seller defined as y
-
-    
-   # df = df.merge(olist_closed_deals_df, on='seller_id', how='left')
-   # df = df.merge(olist_marketing_qualified_leads_df, on='mql_id', how='left')
-    #merging the same for sellers now
-   
-    
     return df
 
 
