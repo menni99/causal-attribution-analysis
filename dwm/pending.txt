@@ -1,5 +1,5 @@
-- Include rain_level variable as a function and column in df_final
-- Understand Potential outcomes
+- describe the missing value handeling / reasoning 
+- Organize the data exploration
 
 
 Problems: 
@@ -14,3 +14,15 @@ FOR MODELING:
 
 How many confounders should we take into account?
 
+
+
+
+
+- Why are we naming rainfall as region?
+- there are fiewer review creation dates than actual reviews(people are going to but they stop)
+
+
+
+
+- added customer experience and seller rating to preprocess
+- put stuff under titles to make it easier to understand
