@@ -4,11 +4,50 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.impute import KNNImputer
+from make_dataset import load_data, merge_all_datasets
+import time
+
+import warnings
+warnings.filterwarnings("ignore")
 
 
 
-import pandas as pd
-from sklearn.impute import KNNImputer
+
+# Helper dictionaries for weather features
+
+# rainfall_categories = {
+#     'North': {1: 'High', 2: 'High', 3: 'High', 4: 'Moderate', 5: 'Moderate', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'Northeast': {1: 'Low', 2: 'Moderate', 3: 'Moderate', 4: 'High', 5: 'High', 6: 'Moderate', 7: 'Low', 8: 'Low', 9: 'Low', 10: 'Moderate', 11: 'Moderate', 12: 'High'},
+#     'Central-West': {1: 'High', 2: 'High', 3: 'High', 4: 'Moderate', 5: 'Low', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Low', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'Southeast': {1: 'High', 2: 'High', 3: 'Moderate', 4: 'Moderate', 5: 'Low', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'South': {1: 'Moderate', 2: 'Moderate', 3: 'Moderate', 4: 'Moderate', 5: 'Moderate', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'Moderate', 12: 'High'}
+# }
+
+state_to_region = {
+    'AC': 'North', 'AP': 'North', 'AM': 'North', 'PA': 'North', 'RO': 'North', 'RR': 'North', 'TO': 'North',
+    'AL': 'Northeast', 'BA': 'Northeast', 'CE': 'Northeast', 'MA': 'Northeast', 'PB': 'Northeast', 'PE': 'Northeast', 'PI': 'Northeast', 'RN': 'Northeast', 'SE': 'Northeast',
+    'GO': 'Central-West', 'MT': 'Central-West', 'MS': 'Central-West', 'DF': 'Central-West',
+    'ES': 'Southeast', 'MG': 'Southeast', 'RJ': 'Southeast', 'SP': 'Southeast',
+    'PR': 'South', 'RS': 'South', 'SC': 'South'
+}
+
+
+# def get_rainfall_category(region, month):
+
+#     rainfall_categories = {
+#     'North': {1: 'High', 2: 'High', 3: 'High', 4: 'Moderate', 5: 'Moderate', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'Northeast': {1: 'Low', 2: 'Moderate', 3: 'Moderate', 4: 'High', 5: 'High', 6: 'Moderate', 7: 'Low', 8: 'Low', 9: 'Low', 10: 'Moderate', 11: 'Moderate', 12: 'High'},
+#     'Central-West': {1: 'High', 2: 'High', 3: 'High', 4: 'Moderate', 5: 'Low', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Low', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'Southeast': {1: 'High', 2: 'High', 3: 'Moderate', 4: 'Moderate', 5: 'Low', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'High', 12: 'High'},
+#     'South': {1: 'Moderate', 2: 'Moderate', 3: 'Moderate', 4: 'Moderate', 5: 'Moderate', 6: 'Low', 7: 'Low', 8: 'Low', 9: 'Moderate', 10: 'Moderate', 11: 'Moderate', 12: 'High'}
+#     }
+
+#     return rainfall_categories.get(region).get(month, 'Unknown')
+
+
+# ------------------------ Functions
+# ------------------------ 1
+
 
 def handle_missing_values(df):
     """
@@ -19,18 +58,15 @@ def handle_missing_values(df):
     df.dropna(subset=['seller_id'], inplace=True)
 
     #drop unnecesary columns
-
     columns_to_drop = [
     'geolocation_zip_code_prefix_x',
     'geolocation_zip_code_prefix_y',
     'geolocation_city_x',
     'geolocation_state_x',
     'geolocation_city_y',
-    'geolocation_state_y'
-]
+    'geolocation_state_y']
 
     df.drop(columns=columns_to_drop, inplace=True)
-
 
     # Convert date columns to datetime format and calculate average time deltas
     date_columns = [
@@ -123,16 +159,36 @@ def handle_missing_values(df):
     df = df.sort_values(by=['seller_id', 'review_answer_timestamp'])
     df['seller_avg_rating'] = df.groupby('seller_id')['review_score'].apply(rolling_mean_seller).reset_index(level=0, drop=True)
     df['seller_avg_rating'].fillna(df['review_score'], inplace=True)
-
-
     return df
+    
+
+#---- dealing missing values (partial fix)
+# def handle_missing_values(df):
+#     df = df.copy()
+#     df.rename(columns={'Product_price': 'revenue'}, inplace=True) 
+#     df['Product_price'] = df['revenue'] + df['freight_value']
+#     df['Product_weight_kg'] = df['Product_weight_kg'].fillna(df['Product_weight_kg'].mean())
+#     df['distance_km'] = df['distance_km'].fillna(df['distance_km'].mean())
+#     df['Product_size'] = df['Product_size'].fillna(df['Product_size'].mean())
+#     # df['customer_avg_score'] = df['customer_avg_score'].fillna(df['customer_avg_score'].mean())
+#     df['No_photos'] = df['No_photos'].fillna(df['No_photos'].mean())
+#     df['Product_price'] = df['Product_price'].fillna(df['Product_price'].mean())
+#     df['freight_value'] = df['freight_value'].fillna(df['freight_value'].mean())
+#     df['Rating'] = df['Rating'].fillna(df['Rating'].mean())
+#     df['Rating'] = df['Rating'].round()
+#     df['Product_category'] = df['Product_category'].fillna(df['Product_category'].mode()[0])
+#     df['revenue'] = df['revenue'].fillna(df['revenue'].mean())
+#     return df
 
 
+
+# ------------------------ 2
 def rolling_mean_customer(group):
     filtered_reviews = group[group <= 5]
     expanding_mean = filtered_reviews.expanding().mean()
     return expanding_mean.reindex(group.index).ffill().bfill()
 
+# ------------------------ 3
 def rolling_mean_seller(group):
     filtered_reviews = group[group <= 5]
     expanding_mean = filtered_reviews.expanding().mean()
@@ -140,7 +196,7 @@ def rolling_mean_seller(group):
 
 
 
-# ------------------------------------------------------------- harvesine
+# ------------------------------------------------------------- 4. harvesine
 def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance between two points
@@ -159,61 +215,91 @@ def haversine(lat1, lon1, lat2, lon2):
 
     return distance
 
-#------------------------------------------------------------------- preprocessing
+#------------------------------------------------------------------- 4. preprocessing
 
 def preprocessing(df, state_to_region):
-
-    # Convert 'order_approved_at' column to datetime if it's not already
+    '''
+    takes raw dataset and preprocess it
+    '''
     df['order_approved_at'] = pd.to_datetime(df['order_approved_at'])
-    df['month'] = df['order_approved_at'].dt.month
-    df['rainfall'] = df['customer_state'].map(state_to_region)  
-
-    # weight
+    # df['month'] = df['order_approved_at'].dt.month
+    df['region'] = df['customer_state'].map(state_to_region)  
     df['Product_weight_kg'] = df['product_weight_g']/1000
-
-    # product category
     df['Product_category'] = df['product_category_name']
     le  = LabelEncoder()
     df['Product_category_encoded'] = le.fit_transform(df['Product_category']) 
-
-    # product size
     df['Product_size'] = df['product_length_cm'] * df['product_height_cm'] * df['product_width_cm']
-
-    # 
     df['No_photos'] = df['product_photos_qty']
-
-    #
     df['Product_price'] = df['price']
-
-    #
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'])
     df['order_estimated_delivery_date'] = pd.to_datetime(df['order_estimated_delivery_date'])
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['late_delivery_in_days'] = (df['order_delivered_customer_date'] - df['order_estimated_delivery_date']).dt.days
     df['is_delivery_late'] = np.where(df['late_delivery_in_days'] > 0, 1, 0)
-
     df['Rating']= df['review_score']
-
-    # 
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
-    df['seasonality'] = df['order_purchase_timestamp'].dt.month
+    df['season'] = df['order_purchase_timestamp'].dt.month
+    df['distance_km'] = df.apply(lambda row: haversine(row['geolocation_lat_x'], row['geolocation_lng_x'], row['geolocation_lat_y'], row['geolocation_lng_y']), axis=1)
+    #df['customer_experience'] = df['customer_experience'].fillna(df['review_score'])
+    #df['seller_avg_rating'] = df['seller_avg_rating'].fillna(df['review_score'])
 
-
-    # distance_km
-    df['distance_km'] = df.apply(lambda row: haversine(row['geolocation_lat_x'], row['geolocation_lng_x'],
-                                                      row['geolocation_lat_y'], row['geolocation_lng_y']), axis=1)
-    # customer experience
-    df['customer_experience'] = df['customer_experience'].fillna(df['review_score'])
-
-    # seller avg rating
-    df['seller_avg_rating'] = df['seller_avg_rating'].fillna(df['review_score'])
-
-    df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 
-                   'review_answer_timestamp', 'order_item_id', 'product_id', 'seller_id', 'payment_value', 
-                   'review_id', 'review_score', 'month', 'rainfall', 'Product_weight_kg', 'Product_category', 
-                   'Product_size',  'No_photos', 'Product_price',  'seasonality', 'is_delivery_late', 
-                   'customer_experience', 'seller_avg_rating',
-                   'freight_value', 'distance_km', 'Product_category_encoded']]
+    # df_final = df[['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp', 'order_approved_at', 
+    #                'review_answer_timestamp', 'order_item_id', 'product_id', 'seller_id', 'payment_value', 
+    #                'review_id', 'review_score', 'month', 'rainfall', 'Product_weight_kg', 'Product_category', 
+    #                'Product_size',  'No_photos', 'Product_price',  'season', 'is_delivery_late', 
+    #                'customer_experience', 'seller_avg_rating',
+    #                'freight_value', 'distance_km', 'Product_category_encoded']]
     
+    return df
+
+
+# ------------------------------------------------ Main
+def main():
+    start = time.time()
+    #----------------- Loading Data
+    data_dict = load_data()
+    olist_customers_df = data_dict['olist_customers_df']
+    olist_geolocation_df = data_dict['olist_geolocation_df']
+    olist_order_items_df = data_dict['olist_order_items_df']
+    olist_order_payments_df = data_dict['olist_order_payments_df']
+    olist_order_reviews_df = data_dict['olist_order_reviews_df']
+    olist_orders_df = data_dict['olist_orders_df']
+    olist_products_df = data_dict['olist_products_df']
+    olist_sellers_df = data_dict['olist_sellers_df']
+    product_category_name_translation_df = data_dict['product_category_name_translation_df']
+    olist_closed_deals_df = data_dict['olist_closed_deals_df']
+    olist_marketing_qualified_leads_df = data_dict['olist_marketing_qualified_leads_df']
+
+    #----------------- Merge Datasets
+    df = merge_all_datasets(olist_customers_df, olist_geolocation_df, olist_order_items_df, olist_order_payments_df,
+                             olist_order_reviews_df, olist_orders_df, olist_products_df, olist_sellers_df)
+    print("1 ------ Merged Datasets")
+
+    # ----------------- Handle Missing Values
+    # df = handle_missing_values(df)
+    # print("2 ------ Handled Missing Values")
     
-    return df_final
+    #----------------- Preprocess Data 
+    df = preprocessing(df, state_to_region)
+    print("3 ------ Preprocessed Data")
+
+    #----------------- Keep columns of interest
+    df_final = df[['order_id', 'customer_id', 'customer_unique_id', 'payment_value', 'Rating', 'region', 
+                         'Product_weight_kg', 'distance_km', 'Product_category', 'Product_size', 'No_photos',
+                         'Product_price', 'season', 'is_delivery_late', 'Product_price', 'freight_value', 
+                         'Product_category_encoded', 'late_delivery_in_days', 'order_purchase_timestamp']]
+    
+    #----------------- Save Clean Data
+    df_final.to_csv("../../data/processed/data.csv", index=False)
+    end = time.time()
+    print(f"4 -------- Clean data saved! time: {end-start:.2f}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+

@@ -39,19 +39,19 @@ def load_data() -> dict:
     '''
 
     data_files = {
-        'olist_customers_df': '../data/raw/olist_customers_dataset.csv',
-        'olist_geolocation_df': '../data/raw/olist_geolocation_dataset.csv',
-        'olist_order_items_df': '../data/raw/olist_order_items_dataset.csv',
-        'olist_order_payments_df': '../data/raw/olist_order_payments_dataset.csv',
-        'olist_order_reviews_df': '../data/raw/olist_order_reviews_dataset.csv',
-        'olist_orders_df': '../data/raw/olist_orders_dataset.csv',
-        'olist_products_df': '../data/raw/olist_products_dataset.csv',
-        'olist_sellers_df': '../data/raw/olist_sellers_dataset.csv',
-        'product_category_name_translation_df': '../data/raw/product_category_name_translation.csv',
+        'olist_customers_df': '../../data/raw/olist_customers_dataset.csv',
+        'olist_geolocation_df': '../../data/raw/olist_geolocation_dataset.csv',
+        'olist_order_items_df': '../../data/raw/olist_order_items_dataset.csv',
+        'olist_order_payments_df': '../../data/raw/olist_order_payments_dataset.csv',
+        'olist_order_reviews_df': '../../data/raw/olist_order_reviews_dataset.csv',
+        'olist_orders_df': '../../data/raw/olist_orders_dataset.csv',
+        'olist_products_df': '../../data/raw/olist_products_dataset.csv',
+        'olist_sellers_df': '../../data/raw/olist_sellers_dataset.csv',
+        'product_category_name_translation_df': '../../data/raw/product_category_name_translation.csv',
         
         # Marketing data
-        'olist_closed_deals_df': '../data/raw/marketing_data/olist_closed_deals_dataset.csv',
-        'olist_marketing_qualified_leads_df': '../data/raw/marketing_data/olist_marketing_qualified_leads_dataset.csv'
+        'olist_closed_deals_df': '../../data/raw/marketing_data/olist_closed_deals_dataset.csv',
+        'olist_marketing_qualified_leads_df': '../../data/raw/marketing_data/olist_marketing_qualified_leads_dataset.csv'
     }
 
     dataframes = {name: pd.read_csv(path) for name, path in data_files.items()}
