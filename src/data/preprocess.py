@@ -1,3 +1,31 @@
+'''
+This make_dataset.py file is intended to keep all the functions that we will use during development. A couple of rules to follow:
+
+1. Let's write proper docstrings for each function.
+2. Let's include the data type that the function returns. For example, if a function returns a dict, it should be written as: def func() -> dict
+3. Let's use clear and concise function and parameter names
+4. Let's break stuff as quickly as possible so we learn faster
+
+
+Example of function:
+
+    def add_numbers(a: int, b: int) -> int:
+        """
+        Add two numbers together.
+
+        This function takes two integers and returns their sum.
+
+        Parameters:
+        a (int): The first integer to add.
+        b (int): The second integer to add.
+
+        Returns:
+        int: The sum of the two input integers.
+        """
+    return a + b
+
+'''
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -16,13 +44,6 @@ from sklearn.metrics import accuracy_score
 import warnings
 warnings.filterwarnings("ignore")
 
-
-
-
-# Helper dictionaries for weather features
-
-
-
 state_to_region = {
     'AC': 'North', 'AP': 'North', 'AM': 'North', 'PA': 'North', 'RO': 'North', 'RR': 'North', 'TO': 'North',
     'AL': 'Northeast', 'BA': 'Northeast', 'CE': 'Northeast', 'MA': 'Northeast', 'PB': 'Northeast', 'PE': 'Northeast', 'PI': 'Northeast', 'RN': 'Northeast', 'SE': 'Northeast',
@@ -31,11 +52,8 @@ state_to_region = {
     'PR': 'South', 'RS': 'South', 'SC': 'South'
 }
 
-
-
 # ------------------------ Functions
 # ------------------------ 1
-
 '''
 def handle_missing_values(df):
     """
@@ -149,7 +167,6 @@ def handle_missing_values(df):
     df['seller_avg_rating'].fillna(df['review_score'], inplace=True)
     return df'''
 
-
 # ------------------------ 2
 def rolling_mean_customer(group):
     filtered_reviews = group[group <= 5]
@@ -162,77 +179,66 @@ def rolling_mean_seller(group):
     expanding_mean = filtered_reviews.expanding().mean()
     return expanding_mean.reindex(group.index).ffill().bfill()
     
-
-#---- dealing missing values (partial fix)
-
-def train_validate_model(df, missing_val_index_lst):
-
+#----------------------------------- Handling Missing Values
+#----- product_category
+def get_features_and_target():
+    '''Gets features and target for RF model'''
     features = ['product_weight_g', 'product_length_cm', 'product_height_cm', 'product_width_cm', 'seller_id_encoded', 'month']
-    target = 'product_category_encoded'
-    df.dropna(subset=features + [target], inplace=True)
-    missing_val_index_lst = df[df['product_category_name'].isna()].index
+    target = 'product_category_name_encoded'
+    return features, target
 
-    # dataset without missing values; this will be used to train model
-    df_clean = df[~df.index.isin(missing_val_index_lst)]
+def encode_column(df, column):
+    '''Encode Column in dataframe'''
+    df2 = df.copy()
+    le = LabelEncoder()
+    df2[f'{column}_encoded'] = le.fit_transform(df2[column])
+    return df2, le
 
-    # Features and Target
-    X, y = df_clean[features], df_clean[target]
-
-    # Splitting into train & validation
+def train_random_forest_model(X, y):
+    '''Fits Random Forest model'''
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3)
-
-    # Testing model
-    rf_model = RandomForestClassifier().fit(X_train, y_train)
-    y_pred = rf_model.predict(X_val)
-    print("Random Forest accuracy on training set: ", accuracy_score(y_val, y_pred))
-
-    # Retraining on full model
-    rf_model_full = RandomForestClassifier().fit(X, y)
-    impute_data = df.loc[missing_val_index_lst][features]
-    predicted_product_category = rf_model_full.predict(impute_data)
-    
-    return predicted_product_category, df
-
+    rf1 = RandomForestClassifier().fit(X_train, y_train)
+    y_pred = rf1.predict(X_val)
+    print("Random Forest accuracy on training set: ", accuracy_score(y_val, y_pred)) 
+    rf2 = RandomForestClassifier().fit(X, y)
+    return rf2
 
 def impute_product_category(df):
+    '''Imputes Product Category column'''
+    features, target = get_features_and_target()
+    df, le = encode_column(df, 'product_category_name')
+    df, le2 = encode_column(df, 'seller_id')
+    df.dropna(subset=features + [target], inplace=True)
 
-    df_copy = df.copy()
+    # Model
+    missing_val_index_lst = df[df['product_category_name'].isna()].index
+    impute_data = df.loc[missing_val_index_lst][features] 
+    df_clean = df[~df.index.isin(missing_val_index_lst)]
+    X, y = df_clean[features], df_clean[target]
+    rf_model_full = train_random_forest_model(X, y)
+    imputed_product_category = rf_model_full.predict(impute_data)
 
-    # Encode the 'Product_category' column
-    le = LabelEncoder()
-    df_copy['product_category_encoded'] = le.fit_transform(df_copy['product_category_name'])
-    
-    # Encode the 'Product_category' column
-    le2 = LabelEncoder()
-    df_copy['seller_id_encoded'] = le2.fit_transform(df_copy['seller_id'])
-
-    # Index of missing values for product_category
-    product_category_null_values_index = df_copy[df_copy['product_category_name'].isna()].index
-
-    # Splitting into train & validation
-    predicted_product_category, df = train_validate_model(df_copy, product_category_null_values_index)
-
-    # Imputing Values
-    df.loc[df['product_category_name'].isna(), 'product_category_encoded'] = predicted_product_category
-    df['product_category_name'] = le.inverse_transform(df['product_category_encoded'])
-    print(f"{len(product_category_null_values_index)} have been imputed")
-
+    df.loc[missing_val_index_lst, 'product_category_name_encoded'] = imputed_product_category
+    df['product_category_name'] = le.inverse_transform(df['product_category_name_encoded'])
+    print(f"{len(missing_val_index_lst)} have been imputed")
     return df
 
+#----- freight_values
+def drop_na(df, columns):
+    """Drop rows with missing values in specified columns and return a new DataFrame"""
+    df_copy = df.copy()
+    df_copy.dropna(subset=columns, inplace=True)
+    return df_copy
 
 def handle_missing_values(df):
-    df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'])
-    df['order_estimated_delivery_date'] = pd.to_datetime(df['order_estimated_delivery_date'])
-    df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
+    '''this function handles final dataset missing values'''
     df['month'] = df['order_purchase_timestamp'].dt.month
+    # Keeping Delivered and Shipped orders only
     df = df[df['order_status'].isin(['delivered', 'shipped'])]
-
-    # drop 1 row from freight_value
-    df.dropna(subset=['freight_value'], inplace=True)
-
+    # Dropping null values
+    df = drop_na(df, 'freight_value')
     # Impute product category
     df = impute_product_category(df)
-    
     return df
 
 
@@ -244,7 +250,6 @@ def haversine(lat1, lon1, lat2, lon2):
     """
     # Convert latitude and longitude from degrees to radians
     lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
-
     # Haversine formula
     dlat = lat2 - lat1
     dlon = lon2 - lon1
@@ -252,7 +257,6 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
     r = 6371  # Radius of Earth in kilometers
     distance = r * c
-
     return distance
 
 #------------------------------------------------------------------- 4. preprocessing
@@ -261,27 +265,21 @@ def preprocessing(df, state_to_region):
     '''
     takes raw dataset and preprocess it
     '''
-    df['order_approved_at'] = pd.to_datetime(df['order_approved_at'])
     df['region'] = df['customer_state'].map(state_to_region)  
     df['Product_weight_kg'] = df['product_weight_g']/1000
     df['Product_category'] = df['product_category_name']
-    le  = LabelEncoder()
-    df['Product_category_encoded'] = le.fit_transform(df['Product_category']) 
+
     df['Product_size'] = df['product_length_cm'] * df['product_height_cm'] * df['product_width_cm']
     df['No_photos'] = df['product_photos_qty']
     df['Product_price'] = df['price']
-    df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'])
-    df['order_estimated_delivery_date'] = pd.to_datetime(df['order_estimated_delivery_date'])
-    df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
+
     df['late_delivery_in_days'] = (df['order_delivered_customer_date'] - df['order_estimated_delivery_date']).dt.days
     df['is_delivery_late'] = np.where(df['late_delivery_in_days'] > 0, 1, 0)
+    df = df[~df['order_delivered_customer_date'].isna()]
     df['Rating']= df['review_score']
-    df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
-    df['season'] = df['order_purchase_timestamp'].dt.month
+
     df['distance_km'] = df.apply(lambda row: haversine(row['geolocation_lat_x'], row['geolocation_lng_x'], row['geolocation_lat_y'], row['geolocation_lng_y']), axis=1)
     df.dropna(subset=['distance_km'], inplace=True)
-    #df['customer_experience'] = df['customer_experience'].fillna(df['review_score'])
-    #df['seller_avg_rating'] = df['seller_avg_rating'].fillna(df['review_score'])    
     return df
 
 
@@ -298,9 +296,6 @@ def main():
     olist_orders_df = data_dict['olist_orders_df']
     olist_products_df = data_dict['olist_products_df']
     olist_sellers_df = data_dict['olist_sellers_df']
-    product_category_name_translation_df = data_dict['product_category_name_translation_df']
-    olist_closed_deals_df = data_dict['olist_closed_deals_df']
-    olist_marketing_qualified_leads_df = data_dict['olist_marketing_qualified_leads_df']
 
     #----------------- Merge Datasets
     df = merge_all_datasets(olist_customers_df, olist_geolocation_df, olist_order_items_df, olist_order_payments_df,
@@ -318,9 +313,9 @@ def main():
     #----------------- Keep columns of interest
     df_final = df[['order_id', 'customer_id', 'customer_unique_id', 'seller_id', 'payment_value', 'Rating', 'region', 
                          'Product_weight_kg', 'distance_km', 'Product_category', 'Product_size', 'No_photos',
-                         'Product_price', 'season', 'is_delivery_late', 'Product_price', 'freight_value', 
-                         'Product_category_encoded', 'late_delivery_in_days', 'order_purchase_timestamp',
-                         'order_delivered_customer_date', 'order_estimated_delivery_date']]
+                         'Product_price', 'month', 'is_delivery_late', 'freight_value', 'product_category_name_encoded', 
+                         'late_delivery_in_days', 'order_purchase_timestamp', 'order_delivered_customer_date', 
+                         'order_estimated_delivery_date', 'review_comment_message']]
     
     #----------------- Save Clean Data
     df_final.to_csv("../../data/processed/data.csv", index=False)
