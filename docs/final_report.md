@@ -63,7 +63,7 @@ Before we formalize out research questions, we need to be clear about how we def
 - Interpretation of Results
 
 
-### 6.2 Practical Implications
+### 3.3 Practical Implications
 - Recommendations for e-commerce operations
 - Potential interventions
 - Cost-benefit considerations
