@@ -52,13 +52,6 @@ Before we formalize out research questions, we need to be clear about how we def
 - Robustness Checks
 - Interpretation of Results
 
-### 3.3 Graphical Causal Models
-- DAG specification
-- Model assumptions
-- Identification strategy
-- Results
-- Robustness Checks
-- Interpretation of Results
 
 ### 3.2 Propensity Score Matching (Late Delivery --> Revenue)
 - Matching methodology
