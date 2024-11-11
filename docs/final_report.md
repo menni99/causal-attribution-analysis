@@ -8,6 +8,8 @@ Although randomized controlled trials (RCTs) represent the gold standard in caus
 This study leverages the rich dataset from Olist, Brazil's largest department store marketplace, to estimate the causal effect of delivery delays on customer satisfaction ratings. We employ two complementary approaches: propensity score matching to simulate experimental conditions using observational data, and graphical causal models to understand the underlying data-generating process. This dual methodology allows us to not only quantify the impact of delays but also to understand the complex mechanisms through which delivery performance affects customer satisfaction.
 
 
+### 1.1 What is a Marketplace? Why the Need of Data Science?
+
 
 ### 1.2 Research Questions
 
