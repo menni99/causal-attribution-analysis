@@ -1,15 +1,18 @@
 # Olist Marketplace Causal Analysis
 
 
-Rnadomized control experiments are the gold standard when it comes to estimating causal effects. However, there are cases when they may be unethical or just hard to carry out. In this we're looking to uncover the impact
+Understanding the causal relationship between delivery delays and customer satisfaction is crucial for e-commerce platforms, as it directly impacts customer retention, brand reputation, and long-term profitability. While delivery performance metrics are routinely collected, establishing a true causal link between delays and customer satisfaction presents unique challenges.
 
-## 1. Introduction
-### 1.1 Background
-- About Olist and its e-commerce operations
-- Importance of delivery timing in e-commerce
-- Current challenges in the Brazilian e-commerce market
+Although randomized controlled trials (RCTs) represent the gold standard in causal inference, deliberately delaying customer deliveries for experimental purposes would be both unethical and potentially damaging to business operations. This necessitates the use of observational study methods to draw reliable causal conclusions from existing data.
+
+This study leverages the rich dataset from Olist, Brazil's largest department store marketplace, to estimate the causal effect of delivery delays on customer satisfaction ratings. We employ two complementary approaches: propensity score matching to simulate experimental conditions using observational data, and graphical causal models to understand the underlying data-generating process. This dual methodology allows us to not only quantify the impact of delays but also to understand the complex mechanisms through which delivery performance affects customer satisfaction.
+
+
 
 ### 1.2 Research Questions
+
+Before we formalize out research questions, we need to be clear about how we define a late delivery, this is important when analyzing the results
+
 - Primary research question
 - Definition of key terms (delayed delivery, customer satisfaction)
 - Scope and limitations
