@@ -1,38 +1,91 @@
 # Olist E-commerce Causal Analysis
 
 ## Project Overview
+This project investigates the causal effect of delayed delivery on customer satisfaction ratings in e-commerce, using data provided by Olist, the largest department store in Brazilian marketplaces.
 
-This project aims to investigate the causal effect of delayed delivery on customer satisfaction ratings in e-commerce, using data provided by Olist, the largest department store in Brazilian marketplaces.
 
-### About Olist and the Dataset
+## Research Question
+Our two research questions are:
 
-Olist connects small businesses from all over Brazil to various channels through a single contract. Merchants can sell their products via the Olist Store and ship them directly to customers using Olist's logistics partners. The dataset captures the customer journey from purchase to delivery and feedback.
+1. **What is the causal effect of delayed delivery on customer ratings?**
 
-### Research Question
-
-Our primary research question is:
-
-**What is the causal effect of delayed delivery on customer satisfaction ratings in e-commerce?**
-
-Following this, we will conduct a root-cause analysis to understand the factors contributing to delivery delays.
+2. **What is the causal effect of delayed delivery on revenue?**
 
 ## Methodology
 
-Our analysis will follow these key steps:
+Our analysis employed two complementary causal inference approaches: *Propensity Score Matching* and *Graphical Causal Models*
 
-1. **Model Formulation**: Develop a causal inference model based on carefully considered assumptions.
-2. **Causal Estimand Identification**: Determine an expression for the causal effect under our model assumptions.
-3. **Statistical Estimation**: Apply advanced statistical methods such as matching or instrumental variables to estimate the causal effect.
-4. **Robustness Checks**: Verify the validity of our estimates through various robustness checks.
+![Causal DAG](results/figures/pictures/dag.jpg)
 
-## Expected Outcomes
+### 1. Propensity Score Matching
 
-This project aims to provide valuable insights into:
-- The quantitative impact of delivery delays on customer satisfaction
-- Key factors contributing to delivery delays in e-commerce
-- Potential strategies for improving customer satisfaction in online retail
+Based on the DAG insights, we use propensity score matching to eliminate any variation that may come from our matching variables that may bias our causal effect. Once the variation has been removed and our matching variables are balanced, we are able to effectively estimate the causal effect of late deliveries on customer ratings.
 
-By leveraging causal inference techniques, we hope to move beyond mere correlation and uncover actionable insights for e-commerce businesses.
+We could define propensity score as the conditional probability of the observation being treated given the matching variables
+```
+Propensity Score = P(T=1| Matching Variables)
+```
+
+**Approach**: 
+
+The first step is to identify our matching variables—this is the identification step. Once these variables are determined, we match observations from the treatment group, where deliveries were late, to those in the control group, where deliveries were on time. By accurately estimating the *Average Treatment Effect on the Treated (ATT)*, we can infer what customer ratings would have been if the deliveries had not been late for the treatment group.
+
+**Causal Estimand Identification**
+
+Based on the DAG, the causal effect is identified through the following estimand:
+
+```latex
+P(Rating|is_delivery_late,distance_km,season,Product_category_encoded,freight_value,Product_size)
+```
+
+realized estimand
+```
+Rating~is_delivery_late+distance_km+season+Product_category_encoded+freight_value+Product_size
+```
+
+**Matching Variables**:
+- Distance (km)
+- Season
+- Product category
+- Freight value
+- Product size
+
+**Balance**: 
+
+Achieved comparable covariate distributions between groups
+
+**Results (ATT)**: 
+
+-1.8 stars. On Average a late delivery causes customer ratings to drop by 1.8 stars.
+
+**Notebook**: 
+
+📊 [Propensity Score Matching](notebooks/model-development.ipynb)
+
+### 2. Graphical Causal Modeling
+
+In Graphical Causal Models the goal is to model the data generating process based on what's observed from the DAG we designed. We achieve this by assigning a causal mechanism to each node in the graph.
+
+Here is an example
+
+<img src="results/figures/pictures/scm.png" alt="Structural Causal Model" width="600"/>
+
+
+the causal mechanisms are defined by functional causal models (FCMs) for non-root nodes and stochastic models for root nodes.
+
+A causal mechanism describes how the values of a node are influenced by the values of its parent nodes.
+
+
+- **Notebook**:
+
+ 📊 [Graphical Causal Model](notebooks/gcm-development.ipynb)
+
+
+We created a more in detailed report about the analysis that can be found here:
+
+[Final Report](docs/final_report.md)
+
+
 
 ## Tools and Technologies
 
@@ -100,8 +153,6 @@ When you're done working on the project, you can deactivate the virtual environm
 ```
 deactivate
 ```
-
-## Contributors
 
 ## Contributors
 
