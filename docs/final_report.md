@@ -11,11 +11,59 @@ This study leverages the rich dataset from Olist, Brazil's largest department st
 ### 1.1 What is a Marketplace? Why the Need of Data Science?
 
 
+
+The role of a marketplace is to effectively connect customers with suppliers, whether they offer products or services. An important aspect of being a marketplace is that it neither owns inventory nor provides services directly. Instead, its primary goal is to facilitate connections between those who do and the customers who need them. However, this is far more complex than it might seem. Key questions arise, such as: How can we match customers and suppliers effectively? And once a match is made, how do we ensure a positive experience for both sides of the marketplace? This is where data comes in and plays a crucial role in streamlining this process.
+
+According to <a href="https://www.youtube.com/watch?v=BVzTfsUMaK8&t=492s" target="_blank">Ramesh Johari</a> , the fundamental idea of any marketplace is taking the friction of the transaction cost away. 
+
+That friction is reduced by data science, who would tackle three important aspects in any marketplace (any vertical): 
+
+- Finding the people to match with
+- Making the matching
+- Learning about the matching
+
+
+### Finding the People to Match with
+
+Depending on the nature of the marketplace—particularly in the case of a two-sided marketplace—we must connect two groups: suppliers, who are willing to sell products or offer services, and customers, who are looking to purchase those products or services.
+
+### Making the Matching
+
+If I’m a customer, my question is: Who should I hire? If I’m a supplier, my question is: Who do I want as a customer?
+
+### Learning About Matching
+
+Suppliers will continue to sell products or offer services in the marketplace only if they have a positive experience—and the same holds true for customers. So, how can we learn from these interactions to ensure both sides are satisfied?
+
+This is where our analysis comes into play. A match has been made, and the product delivery is late. However, our focus isn’t on understanding why the delivery was late. Instead, we aim to examine how the delay impacts the customer’s experience. To quantify this, we analyze customer ratings as a measure of satisfaction.
+
+
 ### 1.2 Research Questions
 
-Before we formalize out research questions, we need to be clear about how we define a late delivery, this is important when analyzing the results
+Before formalizing our research questions, it’s important to define what constitutes a late delivery. Each order includes an *expected delivery date* and an *actual delivery date*. A delivery is classified as late if the actual delivery date occurs after the expected delivery date. For our analysis, we treat late delivery as a binary variable: it takes a value of 1 if the delivery is late, regardless of whether it is delayed by 1 day or 10 days; otherwise, it is set to 0.
 
-- Primary research question
+```plaintext
+# Pseudocode for how the treatment (T) is defined
+if actual_delivery > expected_delivery
+    is_late_delivery = 1
+else
+    is_late_delivery = 0
+```
+
+Another key variable is customer ratings, which serves as our outcome variable. This variable measures customer satisfaction following a purchase. It is ordinal, ranging from 1 to 5, where 5 represents an excellent experience and 1 signifies a poor experience.
+
+With this being clear, we now define our research question:
+
+**What is the impact of a late delivery on customer satisfaction?**
+
+Our primary goal is to uncover the causal effect of late delivery on customer satisfaction. While we could explore associations using methods like regression, this project focuses on leveraging causal inference techniques to estimate the causal relationship more accurately.
+
+```plaintext
+# Causal Link
+is_late_delivery -> customer_rating
+```
+
+
 - Definition of key terms (delayed delivery, customer satisfaction)
 - Scope and limitations
 
@@ -73,6 +121,7 @@ Before we formalize out research questions, we need to be clear about how we def
 ### References
 
 let's include some literature
+
 
 
 
