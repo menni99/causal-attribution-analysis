@@ -63,20 +63,91 @@ Our primary goal is to uncover the causal effect of late delivery on customer sa
 is_late_delivery -> customer_rating
 ```
 
+## 2. Olist Marketplace data Overview
 
-- Definition of key terms (delayed delivery, customer satisfaction)
-- Scope and limitations
+### 2.1 Source and Time Period
+The Olist dataset, sourced from Kaggle, provides an in-depth view of the Brazilian e-commerce ecosystem. As the largest department store within Brazilian marketplaces, Olist offers data encompassing 100,000 orders from 2016 to 2018. This dataset includes various aspects such as order status, pricing, payment details, freight performance, customer location, product attributes, and customer reviews. The addition of a geolocation dataset that maps Brazilian zip codes to their latitude and longitude enhances the analysis, especially for variables such as distance_km.
 
-## 2. Data Overview
-### 2.1 Dataset Description
-- Source and time period
-- Key variables
-- Summary statistics
+For context, this is how the user interface looks for a customer trying to purchase a product or service through Olist: 
+ *image of use interface*
 
-### 2.2 Missing Data Analysis
-- Pattern of missing data
-- Treatment of missing values
-- Potential impact on analysis
+An order may include multiple items, and different items might be fulfilled by distinct sellers.
+
+### 2.2 Data Overview
+The Kaggle-provided data comprises 11 datasets, of which nine are relevant for this project. These datasets encompass customer orders, customer and seller geolocations, order reviews, product descriptions (including measurements, weight, and photos), etc.
+
+### 2.3 Data Processing
+Data processing is crucial as it defines and implements assumptions that affect variable statistics and the overall analysis.
+
+#### 2.3.1 Key Variables of the raw data 
+The original 48 variables were filtered to 25 key variables essential for the analysis, some of these are:
+
+-	Variables utilized as indexes for different tests in our analysis: customer_id, order_id, seller_id & product_id.
+
+-	Variables that will allow us to calculate if a delivery is late or on time: order_delivered_customer_date & order_estimated_delivery_date.
+
+-	Variables that might impact our treatment variable (late or on time delivery) referring specifically to the product delivered:  product_weight_g, product_length_cm, product_height_cm, product_width_cm.
+
+-	Variables that might impact our treatment variable (late or on time delivery) referring specifically to the trajectory of the product delivered:  customer_zip_code_prefix, customer_city, customer_state, geolocation_lat_x, geolocation_lng_x, seller_zip_code_prefix, seller_city, seller_state, geolocation_lat_y, geolocation_lng_y.
+
+#### 2.3.2 Missing Value Handling
+-	Dropping Values: Missing values in seller_id, order_delivered_customer_date, review_score, and freight_value were dropped due to the absence of a logical method for imputation. Removing these values maintained data reliability.
+
+-	Geolocation Imputation: The geolocation_lat_x, geolocation_lng_x, geolocation_lat_y, and geolocation_lng_y columns were imputed using a K-Nearest Neighbors (KNN) approach. This method utilized neighboring data points to estimate missing values, ensuring spatial consistency.
+
+-	Imputation of product_category_name: A Random Forest model imputed missing product_category_name values. This column's imputation was important due to its categorical nature and relevance. The model was trained on product dimensions (product_weight_g, product_length_cm, product_height_cm, product_width_cm), encoded seller identifiers, and order month. The Random Forest method was chosen for its robust performance and ability to capture complex relationships.
+
+-	 Dropping Irrelevant Columns: Columns with redundancy, excessive missing values, or irrelevance were dropped. These included geolocation_zip_code_prefix_x, geolocation_zip_code_prefix_y, geolocation_city_x, geolocation_state_x, geolocation_city_y, geolocation_state_y, product_name_lenght, shipping_limit_date, payment_sequential, product_description_lenght, review_comment_title, order_delivered_carrier_date, payment_type, payment_installments, review_id, and review_comment_message.
+
+#### 2.3.3 Final Variables and Dataset Creation
+To ensure the final dataset is well-prepared for analyzing the impact of late or on-time deliveries on customer ratings, a preprocessing strategy was employed. This process involves data type conversions, feature engineering, and data transformations. 
+
+##### Conversions: 
+-   Datetime Conversion: order_delivered_customer_date and order_estimated_delivery_date were converted to datetime format. This step enabled time-based calculations, such as identifying delivery delays.
+
+##### Feature Engineering:
+-   Rainfall Data Mapping: The rainfall feature was created by mapping the customer_state column to corresponding rainfall values provided in the state_to_region dictionary (a dictionary containing the corresponding region to each state). This variable was intended to assess any correlation between weather conditions and delivery performance.
+
+-   Product Weight and Size: Converted product_weight_g to product_weight_kg, and calculated product size using volume (product_length_cm * product_height_cm * product_width_cm).
+
+-   Number of Photos and Product Price: Standardized the columns no_photos and product_price to maintain consistency.
+
+- Late Delivery Indicator: Created late_delivery_in_days by subtracting order_estimated_delivery_date from order_delivered_customer_date, and a binary feature is_delivery_late to classify deliveries.
+
+-	Distance Calculation: Applied a custom haversine function to calculate the great-circle distance between customer and seller locations. This distance_km metric is essential for understanding delivery performance's impact on customer ratings. 
+
+Rows with missing distance values were dropped to ensure analysis accuracy.
+
+##### Rolling Mean Calculations:
+-   Customer Experience: The customer_experience feature was calculated using a rolling mean of review_score, capped at 5, to track customer satisfaction over time.
+
+-   Seller Average Rating: Computed using a rolling mean of review_score for sellers to gain insights into their performance consistency. Missing values were filled using review_score.
+
+#### 2.3.4  Final Data frame Creation
+The final dataset included key columns: order_id, customer_id, seller_id, timestamps (order_purchase_timestamp, order_approved_at, review_answer_timestamp), and features such as rainfall, product_weight_kg, product_size, no_photos, is_delivery_late, customer_experience, seller_avg_rating, freight_value, distance_km, product_category_name, and product_category_name_encoded. This selection ensured that the dataset was streamlined for efficient analysis and modeling.
+
+#### 2.3.5 Implications and Limitations
+
+##### Data Limitations:
+-   Anonymization: The use of fictional names (e.g., from Game of Thrones) limits deeper analysis into actual seller or brand performance.
+
+-   Time Period: The dataset only covers 2016-2018, potentially missing recent consumer behavior shifts or technological changes.
+
+##### Handling Missing Data:
+-   Imputation Reliability: Methods such as KNN for geolocation and Random Forest for product_category_name are assumption-dependent and could introduce biases, impacting analysis accuracy.
+
+-   Dropped Data: Removing rows with missing critical information (e.g., seller_id, review_score) may reduce dataset size and introduce bias.
+
+##### Limited Scope of Variables:
+-  The dataset does not include potentially impactful variables such as real-time traffic data, weather conditions at delivery, or specific logistics details (e.g., third-party vs. in-house delivery), which could affect delivery performance and customer ratings.
+
+##### Dependency on Assumptions:
+-   The analysis relies on assumptions embedded in the Directed Acyclic Graph (DAG). These guide how variables interact, impacting decisions on data imputation, feature selection, and model-building. This dependency makes the analysis sensitive to changes in assumptions, emphasizing the need for careful validation and iterative testing.
+
+### 2.4 Data exploration
+#### 2.4.1 EDA process and insights  - Avantika
+#### 2.4.2 Definitions of key variables for analysis (Confounders, Treatment, etc) - Avantika 
+
 
 ## 3. Methodology
 ### 3.1 Causal Framework
