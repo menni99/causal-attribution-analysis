@@ -12,7 +12,8 @@ def late_delivery_rate(y_true, y_pred):
     late_deliveries = np.sum(y_pred < y_true)
     return late_deliveries / len(y_true)
 
-def data_preprocess(file_path):
+def data_preprocess():
+    file_path = "../data/processed/data.csv"
     df = pd.read_csv(file_path, parse_dates=['order_purchase_timestamp', 'order_approved_at', 'order_delivered_customer_date', 'order_estimated_delivery_date'])
     df['purchase_date_hour'] = df['order_purchase_timestamp'].dt.floor('H')
     df['gap_in_minutes_approved_and_ordered'] = (df['order_approved_at'] - df['order_purchase_timestamp']).dt.total_seconds() / 3600
@@ -81,8 +82,8 @@ def predict(df_clean):
 
 
 def plot_prediction():
-    file_path = "causal-inference-marketplace/data/processed/data.csv"
-    df_clean = data_preprocess(file_path)
+    #file_path = "causal-inference-marketplace/data/processed/data.csv"
+    df_clean = data_preprocess()
     df_clean = predict(df_clean)
 
 
