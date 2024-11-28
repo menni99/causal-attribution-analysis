@@ -211,9 +211,9 @@ if __name__ == "__main__":
 
     df = preprocess_helper.preprocessing(df, state_to_region)
     df = preprocess_helper.rolling_mean_process(df)
-    df_final = preprocess_helper.df_final(df)
-    df_final.rename(columns={'review_score': 'Rating', 'season': 'month'}, inplace=True)
-    df_final.to_csv("../../data/processed/data.csv", index=False)
+    #df_final = preprocess_helper.df_final(df)
+    df.rename(columns={'review_score': 'Rating', 'season': 'month'}, inplace=True)
+    df.to_csv("../../data/processed/data.csv", index=False)
     print("clean data saved!!")
 
 
