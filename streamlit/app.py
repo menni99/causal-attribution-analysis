@@ -88,7 +88,6 @@ def predict(df_clean):
 
 
 def plot_prediction():
-    #file_path = "causal-inference-marketplace/data/processed/data.csv"
     df_clean = data_preprocess()
     df_clean = predict(df_clean)
 
@@ -147,49 +146,42 @@ def main():
     )
 
 
-    st.title("🔍 Online Marketplace Analysis")
+    st.title("🔍 Marketplaces: Delivery Delays & Ratings")
 
     col1, col2= st.columns([2,1])
 
     with col1:
         # Overview Section
-        st.header("Impact of Late Deliveries on Customer Satisfaction")
+        st.subheader("Late Deliveries: A Causal Impact on Ratings")
         st.write("""
                 This project investigates the causal effect of late delivery on customer satisfaction ratings,
                 using data provided by Olist, the largest department store in Brazilian marketplaces.
         """)
 
 
-        with st.expander("Learn more"):
-            st.markdown("""
-            **Detailed Project Background**
+    num_orders, late_orders, rate_late_delivery, avg_rating = st.columns([3,3,3,3])
 
-            Understanding the causal relationship between delivery delays and customer satisfaction is crucial for e-commerce platforms, 
-            as it directly impacts customer retention, brand reputation, and long-term profitability. 
-            While delivery performance metrics are routinely collected, establishing a true causal link between delays and customer satisfaction 
-            presents unique challenges. 
-                        
-            Although randomized controlled trials (RCTs) represent the gold standard in causal inference, deliberately delaying 
-            customer deliveries for experimental purposes would be both unethical and potentially damaging to business operations. 
-            This necessitates the use of observational study methods to draw reliable causal conclusions from existing data.
-            
-                        
-            This study leverages the rich dataset from Olist, Brazil's largest department store marketplace, 
-            to estimate the causal effect of delivery delays on customer satisfaction ratings.
-             We employ two complementary approaches: propensity score matching to simulate experimental conditions using observational data, 
-            and graphical causal models to understand the underlying data-generating process. 
-            This dual methodology allows us to not only quantify the impact of delays but also to understand the complex mechanisms through which delivery performance affects customer satisfaction.
-            """)
+    with num_orders:
+        st.metric(label="Number of Orders", value="114,841")
 
-                    # URL of your GitHub repository
-        repo_url = "https://github.com/juanpi19/causal-inference-marketplace"
+    with late_orders:
+        st.metric(label="Number of Late Deliveries", value="7368")
 
-        # Display GitHub logo with a link
-        st.markdown(f"""
-        [<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30">]({repo_url})
-        """, unsafe_allow_html=True)
+    with avg_rating:
+        st.metric(label="Average Rating", value="4.08 ⭐")
 
+    with rate_late_delivery:
+        st.metric(label="Late Delivery Rate", value="6.4%")
+
+    #                     # URL of your GitHub repository
+    # repo_url = "https://github.com/juanpi19/causal-inference-marketplace"
+
+    #     # Display GitHub logo with a link
+    # st.markdown(f"""
+    #     [<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30">]({repo_url})
+    #     """, unsafe_allow_html=True)
    
+
     # Compact Expander Section
     col1, col2, col3= st.columns([1,2,1])
 
@@ -199,22 +191,33 @@ def main():
     # First Two Findings Side by Side
     
     st.subheader("Uncovering the Causal Impact")
-    col1, col2 = st.columns([2,1])
+    col1, col3 = st.columns([3,2])
+  
     with col1:
         st.write(
             """
-            To investigate the causal effect of late deliveries on customer ratings, we employ a **Propensity Score Matching (PSM)** approach. 
-            PSM allows us to control for confounding variables by matching late delivery cases with similar on-time delivery cases based on 
-            key features, including delivery distance (in km), season, product category, freight value, and product size. By matching on 
-            these attributes, we ensure a fair comparison, isolating the effect of late deliveries on customer ratings.
-
-            Our analysis reveals a notable impact on customer ratings, shedding light on areas for improvement in the delivery process 
-            to enhance customer satisfaction.
+            To investigate the causal impact of late deliveries on customer ratings, we employed Propensity Score Matching (PSM). 
+            By matching late and on-time deliveries based on key factors like distance, season, product details, and value, 
+            we isolated the effect of late deliveries.
             """
         )
         st.markdown("[Propensity Score Matching Notebook](https://github.com/juanpi19/causal-inference-marketplace/blob/main/notebooks/model-development.ipynb)")
-    with col2:
+
+    # with col2:
+    #     st.graphviz_chart('''
+    #                 digraph {
+    #                     LateDelivery -> Rating
+    #                 }
+    #             ''')
+
+    with col3:
         st.metric(label="**Impact of Late Delivery on Customer Ratings**", value="1.8")
+
+        # st.graphviz_chart('''
+        #                     digraph {
+        #                         LateDelivery -> Rating
+        #                     }
+        #                 ''')
 
         # Optional: Add a callout for emphasis
         st.info(
@@ -230,38 +233,24 @@ def main():
     st.subheader("🌟 Solution")
     col1, col2 = st.columns([1,1])
 
-    with col1:
-        st.write(
-            """
-            Late deliveries occur when the actual shipping date surpasses the estimated delivery date, creating a gap between customer 
-            expectations and operational performance. To address this issue, we propose the following solution:
+    #with col1:
+    st.write("""
+    **Problem:** We have quantified how much Late deliveries are impacting customer satisfaction.
 
-            **Develop Realistic Delivery Timeframes:** Use historical data to generate accurate delivery estimates that we can consistently 
-            meet or exceed. 
-            
-            Currently, Olist's Expected Delivery model has a Late Delivery Rate of 7.5%, which serves as our benchmark. 
-            Our goal is to improve this rate and reduce the frequency of late deliveries, ensuring better alignment with customer expectations.
+    **Solution:**
+    1. **Accurate Predictions:** Improve delivery time estimates using historical data and predictive modeling.
+    2. **Confidence Intervals:** Use 95% confidence intervals to minimize underestimations.
+    3. **Reduced Late Deliveries:** Aim to decrease the current 7.5% late delivery rate.
 
-            ### Predicting Estimated Delivery
-            We predict the **days to actual delivery**, defined as the number of days from the order purchase date to the actual delivery date. 
-            This prediction allows us to construct the "is_late_delivery" variable based on the logic:
+    By implementing these solutions, we can enhance customer experience and operational efficiency.
+    """)
 
-            - **Late Delivery:** `Days to Actual Delivery > Days to Estimated Delivery`
-            - **On-Time Delivery:** `Days to Actual Delivery ≤ Days to Estimated Delivery`
+    # Divider
+    st.divider()
+    st.subheader("💵 Business Impact")
 
-            ### Addressing Prediction Errors
-            When predicting delivery times, the model may err in two ways:
-            
-            - **Overestimation:** The predicted delivery time is longer than the actual delivery time. This typically results in early deliveries, which customers often prefer.
-            - **Underestimation:** The predicted delivery time is shorter than the actual delivery time, leading to late deliveries and unmet expectations.
-
-            Since late deliveries are the primary concern, we propose estimating a **confidence interval for delivery timeframes**. 
-            By using a 95% confidence interval, we aim to account for uncertainty in predictions, focusing on minimizing underestimations while maintaining operational feasibility.
-            """
-        )
-
-    with col2:
-        plot_prediction()
+    # with col2:
+    plot_prediction()
 
 if __name__ == "__main__":
     main()
