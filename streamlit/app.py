@@ -53,6 +53,9 @@ def data_preprocess(file_path):
 
 def predict(df_clean):
 
+    gb_model_lb = joblib.load('../results/models/gb_model_lb.joblib')
+    gb_model_ub = joblib.load('../results/models/gb_model_ub.joblib')
+
     features = [
                 'is_summer',
                 'freight_value',
@@ -254,6 +257,4 @@ def main():
         plot_prediction()
 
 if __name__ == "__main__":
-    gb_model_lb = joblib.load('../results/models/gb_model_lb.joblib')
-    gb_model_ub = joblib.load('../results/models/gb_model_ub.joblib')
     main()
