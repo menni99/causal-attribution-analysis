@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import joblib
 import plotly.express as px
+import os
 
 # "../data/processed/data.csv"
 
@@ -13,7 +14,9 @@ def late_delivery_rate(y_true, y_pred):
     return late_deliveries / len(y_true)
 
 def data_preprocess():
-    file_path = "../data/processed/data.csv"
+    #file_path = "causal-inference-marketplace/data/processed/data.csv"  #../data/processed/data.csv"
+    #file_path = os.path.join(os.path.dirname(__file__),'..', 'data', 'dataset.csv')
+    file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed', 'data.csv')
     df = pd.read_csv(file_path, parse_dates=['order_purchase_timestamp', 'order_approved_at', 'order_delivered_customer_date', 'order_estimated_delivery_date'])
     df['purchase_date_hour'] = df['order_purchase_timestamp'].dt.floor('H')
     df['gap_in_minutes_approved_and_ordered'] = (df['order_approved_at'] - df['order_purchase_timestamp']).dt.total_seconds() / 3600
@@ -54,8 +57,11 @@ def data_preprocess():
 
 def predict(df_clean):
 
-    gb_model_lb = joblib.load('../results/models/gb_model_lb.joblib')
-    gb_model_ub = joblib.load('../results/models/gb_model_ub.joblib')
+    file_path_model_lb = os.path.join(os.path.dirname(__file__), '..', 'results', 'models', 'gb_model_lb.joblib')
+    file_path_model_ub = os.path.join(os.path.dirname(__file__), '..', 'results', 'models', 'gb_model_ub.joblib')
+
+    gb_model_lb = joblib.load(file_path_model_lb)
+    gb_model_ub = joblib.load(file_path_model_ub)
 
     features = [
                 'is_summer',
