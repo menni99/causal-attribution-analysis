@@ -81,7 +81,7 @@ def predict(df_clean):
 
 
 def plot_prediction():
-    file_path = "../data/processed/data.csv"
+    file_path = "causal-inference-marketplace/data/processed/data.csv"
     df_clean = data_preprocess(file_path)
     df_clean = predict(df_clean)
 
