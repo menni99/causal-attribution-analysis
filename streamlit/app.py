@@ -66,13 +66,6 @@ def predict(df_clean):
     target = 'days_to_actual_delivery_log'
     X, y = df_clean[features], df_clean[target]
 
-    
-
-    # # gb_model_lb = joblib.load('../results/models/gb_model_lb.joblib')
-    # gb_model_lb = joblib.load('/Users/juanherrera/Desktop/causal-inference-marketplace/results/models/gb_model_lb.joblib')
-    # #gb_model_ub = joblib.load('../results/models/gb_model_ub.joblib')
-    # gb_model_ub = joblib.load('/Users/juanherrera/Desktop/causal-inference-marketplace/results/models/gb_model_ub.joblib')
-
     lower_bound = gb_model_lb.predict(X)
     upper_bound = gb_model_ub.predict(X)
 
@@ -236,7 +229,7 @@ def main():
             **Develop Realistic Delivery Timeframes:** Use historical data to generate accurate delivery estimates that we can consistently 
             meet or exceed. 
             
-            Currently, Olist's Expected Delivery model has a Late Delivery Rate of 7.2%, which serves as our benchmark. 
+            Currently, Olist's Expected Delivery model has a Late Delivery Rate of 7.5%, which serves as our benchmark. 
             Our goal is to improve this rate and reduce the frequency of late deliveries, ensuring better alignment with customer expectations.
 
             ### Predicting Estimated Delivery
