@@ -6,7 +6,6 @@ import joblib
 import plotly.express as px
 import os
 
-# "../data/processed/data.csv"
 
 def late_delivery_rate(y_true, y_pred):
     # This is the metric we want to optimize for
@@ -158,6 +157,8 @@ def main():
                 using data provided by Olist, the largest department store in Brazilian marketplaces.
         """)
 
+        st.markdown("[Github Repo](https://github.com/juanpi19/causal-inference-marketplace)")
+
 
     num_orders, late_orders, rate_late_delivery, avg_rating = st.columns([3,3,3,3])
 
@@ -172,15 +173,6 @@ def main():
 
     with rate_late_delivery:
         st.metric(label="Late Delivery Rate", value="6.4%")
-
-    #                     # URL of your GitHub repository
-    # repo_url = "https://github.com/juanpi19/causal-inference-marketplace"
-
-    #     # Display GitHub logo with a link
-    # st.markdown(f"""
-    #     [<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="30">]({repo_url})
-    #     """, unsafe_allow_html=True)
-   
 
     # Compact Expander Section
     col1, col2, col3= st.columns([1,2,1])
@@ -203,23 +195,53 @@ def main():
         )
         st.markdown("[Propensity Score Matching Notebook](https://github.com/juanpi19/causal-inference-marketplace/blob/main/notebooks/model-development.ipynb)")
 
-    # with col2:
-    #     st.graphviz_chart('''
-    #                 digraph {
-    #                     LateDelivery -> Rating
-    #                 }
-    #             ''')
+        with st.expander("Read more about the analysis 🤓"):
+            st.write('''To estimate the causal impact of late deliveries on customer ratings, we employ propensity score matching. 
+                     This technique helps control for potential biases by balancing treatment and control groups based on relevant factors. 
+                     By matching similar customers, we can isolate the effect of late deliveries.''')
+            
+            st.graphviz_chart('''
+            digraph {
+                "Month" -> "Rating (O)"
+                "Month" -> "Delivery Status (T)"
+                "Month" -> "Product Category"
+                "Delivery Status (T)" -> "Rating (O)"
+                "Product Category" -> "Delivery Status (T)"
+                "Product Category" -> "Rating (O)"
+                "Product Category" -> "Shipping Fee"
+                "Shipping Fee" -> "Delivery Status (T)"
+                "Shipping Fee" -> "Rating (O)"
+                "Shipping Distance" -> "Shipping Fee"
+                "Shipping Distance" -> "Rating (O)"
+            }
+        ''')
+            
+            st.write('''A propensity score is the probability that an order receives the treatment (e.g., a late delivery) given a set of  covariates. Mathematically, it can be expressed as:
+                 
+                 Propensity Score = P(T=1 | X)''')
+                        
 
+            st.write("""
+                     where:
+
+                    - T=1 indicates the treatment group (late delivery)
+                    - X represents the set of matching variables
+                     
+                     In our analysis, we use the following matching variables to create balanced groups:
+
+                    1. Distance (km): The distance between the origin and destination.
+                     
+                    2. Season: The time of year.
+                     
+                    3. Product Category: The type of product being delivered.
+                     
+                    4. Freight Value: The cost of shipping the product.
+                     
+                    By matching late and on-time orders with similar propensity scores based on these variables, we can isolate the effect of late deliveries on customer ratings.""")
+            
     with col3:
         st.metric(label="**Impact of Late Delivery on Customer Ratings**", value="1.8")
 
-        # st.graphviz_chart('''
-        #                     digraph {
-        #                         LateDelivery -> Rating
-        #                     }
-        #                 ''')
-
-        # Optional: Add a callout for emphasis
         st.info(
             """
             **Insight:** Late deliveries significantly impact customer ratings, reducing them by an average of 1.8 stars.
@@ -236,11 +258,14 @@ def main():
     #with col1:
     st.write("""
     **Problem:** We have quantified how much Late deliveries are impacting customer satisfaction.
+             
+    **Goal:** Aim to decrease the current 7.5% late delivery rate.
 
     **Solution:**
     1. **Accurate Predictions:** Improve delivery time estimates using historical data and predictive modeling.
-    2. **Confidence Intervals:** Use 95% confidence intervals to minimize underestimations.
-    3. **Reduced Late Deliveries:** Aim to decrease the current 7.5% late delivery rate.
+    2. **Confidence Intervals:** Use confidence intervals to minimize underestimations.
+    
+    
 
     By implementing these solutions, we can enhance customer experience and operational efficiency.
     """)
@@ -249,8 +274,51 @@ def main():
     st.divider()
     st.subheader("💵 Business Impact")
 
+    st.markdown("[Modeling Notebook](https://github.com/juanpi19/causal-inference-marketplace/blob/main/notebooks/forecast-analysis.ipynb)")
+
     # with col2:
     plot_prediction()
+
+    col1, col2 = st.columns([1,1])
+
+    with col1:
+
+        with st.expander("Read more about the analysis 🤓"):
+            st.write("""
+                     Improving Delivery Time Predictions and Customer Satisfaction
+
+                        Problem:
+                     
+                        - Olist's current delivery time prediction model results in a 7.2% late delivery rate. This leads to unsatisfied customers and negative impacts on the company's reputation.
+
+                        Solution:
+                        - Develop a more accurate predictive model to estimate delivery times.
+
+                        Proposed Approach:
+
+                        Data Preparation:
+
+                        - Utilize historical order data from Olist, including ordered_delivered_customer_date and order_estimated_delivery_date.
+                        - Calculate the days_to_actual_delivery for each order.
+                     
+                        Model Development:
+
+                        - Employ a Gradient Boosting Machine Learning model to predict the days_to_actual_delivery.
+                        - Use a 95% confidence interval to predict a range of possible delivery days rather than a single point estimate.
+                        
+                        Late Delivery Prediction:
+
+                        - If the actual delivery date falls outside the predicted interval, the order is classified as a potential late delivery.
+                        
+                        Expected Benefits:
+
+                        -  Reduced Late Deliveries: A more accurate model will lead to fewer late deliveries, improving customer satisfaction.
+                        -  Enhanced Customer Experience: By providing more realistic delivery timeframes, Olist can set appropriate customer expectations.
+                        - Improved Operational Efficiency: Better forecasting can optimize inventory management and logistics operations.
+                        
+                        Business Recommendation:
+                        - Prioritize the implementation of the improved predictive model as a cost-effective solution to address the late delivery issue. 
+                        - This approach focuses on enhancing customer satisfaction without significant operational changes.""")
 
 if __name__ == "__main__":
     main()
