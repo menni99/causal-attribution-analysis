@@ -168,7 +168,7 @@ def main():
         st.metric(label="Number of Late Deliveries", value="7368")
 
     with avg_rating:
-        st.metric(label="Average Csutomer Rating", value="4.08 ⭐")
+        st.metric(label="Average Customer Rating", value="4.08 ⭐")
 
     with rate_late_delivery:
         st.metric(label="Late Delivery Rate", value="6.4%")
