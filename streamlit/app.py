@@ -196,7 +196,7 @@ def main():
     with col1:
         st.write(
             """
-            To investigate the causal impact of late deliveries on customer ratings, we employed Propensity Score Matching (PSM). 
+            To investigate the causal impact of late deliveries on customer ratings, we employed the **Propensity Score Matching (PSM)** technique. 
             By matching late and on-time deliveries based on key factors like distance, season, product details, and value, 
             we isolated the effect of late deliveries.
             """
