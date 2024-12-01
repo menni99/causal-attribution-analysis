@@ -117,9 +117,8 @@ def plot_prediction():
 
     # Combine both datasets for plotting
     combined_data = pd.concat([weekly_data_model_current_clean[['perc_late_deliveries', 'model']],
-                            weekly_data_model_gb_clean[['perc_late_deliveries', 'model']]])
-
-
+                            weekly_data_model_gb_clean[['perc_late_deliveries', 'model']]]).loc["2017-01-08 00:00:00":]
+    
 
     # Create the Plotly plot
     fig = px.line(combined_data, 
@@ -151,7 +150,7 @@ def main():
 
     with col1:
         # Overview Section
-        st.subheader("Late Deliveries: A Causal Impact on Ratings")
+        #st.subheader("Late Deliveries: A Causal Impact on Ratings")
         st.write("""
                 This project investigates the causal effect of late delivery on customer satisfaction ratings,
                 using data provided by Olist, the largest department store in Brazilian marketplaces.
@@ -169,7 +168,7 @@ def main():
         st.metric(label="Number of Late Deliveries", value="7368")
 
     with avg_rating:
-        st.metric(label="Average Rating", value="4.08 ⭐")
+        st.metric(label="Average Csutomer Rating", value="4.08 ⭐")
 
     with rate_late_delivery:
         st.metric(label="Late Delivery Rate", value="6.4%")
@@ -248,77 +247,84 @@ def main():
             """
         )
 
-    # Divider
-    st.divider()
-
-    # Third Finding / Recommendation
-    st.subheader("🌟 Solution")
-    col1, col2 = st.columns([1,1])
-
-    #with col1:
-    st.write("""
-    **Problem:** We have quantified how much Late deliveries are impacting customer satisfaction.
-             
-    **Goal:** Aim to decrease the current 7.5% late delivery rate.
-
-    **Solution:**
-    1. **Accurate Predictions:** Improve delivery time estimates using historical data and predictive modeling.
-    2. **Confidence Intervals:** Use confidence intervals to minimize underestimations.
-    
-    
-
-    By implementing these solutions, we can enhance customer experience and operational efficiency.
-    """)
 
     # Divider
     st.divider()
     st.subheader("💵 Business Impact")
 
+    st.write('''
+             **Problem:** We have quantified how much *late deliveries* are impacting *customer satisfaction*. How can we reduce the late delivery rate?
+             
+             **Goal:** Model the expected delivery with the aim to decrease the current 7.5% late delivery rate.''')
+
     st.markdown("[Modeling Notebook](https://github.com/juanpi19/causal-inference-marketplace/blob/main/notebooks/forecast-analysis.ipynb)")
 
-    # with col2:
+
+
+    col1, col2, col3, col4 = st.columns([1,1,1,1])
+
+    with col1:
+        st.metric(label="**Late Delivery Rate** Olist Current Model", value='7.5%')
+    with col2:
+        st.metric(label="**Late Delivery Rate** Improved Model", value='2.7%')
+    with col3:
+        revenue = 4170
+        formatted_revenue = f"${revenue:,.2f}"
+        st.metric(label="**Projected Revenue Saved with Improved Model**", value=formatted_revenue)
+
+
     plot_prediction()
+
+    col1, col2= st.columns([1,1])
+
+    with col1:
+
+        st.markdown("""
+        #### Revenue Loss Function:
+        The function shows how an improved Late Delivery Rate (LDR) increases revenue. More on the logic in the expander below:
+                    
+                    Revenue Loss = (Total Customers * Late Delivery Rate) x Customer Lifetime Value x Impact Per Late Delivery""")
 
     col1, col2 = st.columns([1,1])
 
     with col1:
 
-        with st.expander("Read more about the analysis 🤓"):
+        with st.expander("Analysis on How Revenue Impact was Estimated 🤓"):
             st.write("""
-                     Improving Delivery Time Predictions and Customer Satisfaction
+            **Understanding the Impact of Late Deliveries on Revenue**
 
-                        Problem:
-                     
-                        - Olist's current delivery time prediction model results in a 7.2% late delivery rate. This leads to unsatisfied customers and negative impacts on the company's reputation.
+            We've previously explored how late deliveries affect customer satisfaction (a 1.8-point decrease in ratings). Now, we'll dig deeper into the financial implications of these delays.
 
-                        Solution:
-                        - Develop a more accurate predictive model to estimate delivery times.
+            **Revenue Loss Function**
 
-                        Proposed Approach:
+            To quantify the monetary impact, we've developed a Revenue Loss function that combines insights from various models:
+                
+                Revenue Loss = (Total Customers * Late Delivery Rate) x Customer Lifetime Value x Impact Per Late Delivery
 
-                        Data Preparation:
+            * **Total Customers:** 92,740 Olist customers
+            * **Late Delivery Rate:** 
+                * Current Model: 7.5%
+                * Improved Model: 2.7%
+            * **Customer Lifetime Value (LTV):**
+                * Average Order Value: 157
+                * Average Repeat Purchase: 2.98%
+                * **LTV:** 467
+            * **Impact Per Late Delivery:**
+                * Late Delivery Impact on Ratings: 1.8 points
+                * Rating Decrease Impact on Repeat Purchase: -0.0011 per star
+                * **Total Impact:** -0.00198 purchases per late delivery
 
-                        - Utilize historical order data from Olist, including ordered_delivered_customer_date and order_estimated_delivery_date.
-                        - Calculate the days_to_actual_delivery for each order.
-                     
-                        Model Development:
+            **Calculating Revenue Loss**
 
-                        - Employ a Gradient Boosting Machine Learning model to predict the days_to_actual_delivery.
-                        - Use a 95% confidence interval to predict a range of possible delivery days rather than a single point estimate.
-                        
-                        Late Delivery Prediction:
+            * **Current Model:**
+                * Revenue Loss = (92,740 * 7.5%) * 467 * -0.00198 = **$6,537**
+            * **Improved Model:**
+                * Revenue Loss = (92,740 * 2.7%) * 467 * -0.00198 = **$2,367**
 
-                        - If the actual delivery date falls outside the predicted interval, the order is classified as a potential late delivery.
-                        
-                        Expected Benefits:
-
-                        -  Reduced Late Deliveries: A more accurate model will lead to fewer late deliveries, improving customer satisfaction.
-                        -  Enhanced Customer Experience: By providing more realistic delivery timeframes, Olist can set appropriate customer expectations.
-                        - Improved Operational Efficiency: Better forecasting can optimize inventory management and logistics operations.
-                        
-                        Business Recommendation:
-                        - Prioritize the implementation of the improved predictive model as a cost-effective solution to address the late delivery issue. 
-                        - This approach focuses on enhancing customer satisfaction without significant operational changes.""")
+            **Potential Savings:**
+            By improving the late delivery rate, we can reduce revenue loss by **$4,170**.
+            """)
+         
 
 if __name__ == "__main__":
     main()
